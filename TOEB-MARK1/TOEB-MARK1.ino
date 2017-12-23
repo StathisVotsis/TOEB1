@@ -31,6 +31,8 @@
     float volt;
     char id[30];
     int tim=0;
+    
+   
 
     void setup(void)
     {
@@ -40,9 +42,11 @@
         // initialize
         lcd.init();
         // Print a message to the LCD.
-         lcd.print("Welcome");
-         
-        
+        lcd.print("Welcome");
+        pinMode(A1, OUTPUT); 
+        pinMode(A2, OUTPUT);      
+        buzer2();
+        digitalWrite(A1,LOW);
          //breath2(REG_GREEN);
          //lcd.clear();
          lcd.setCursor(0, 0);
@@ -66,11 +70,12 @@
       {
          lcd.setCursor(0, 0);
          lcd.print("System off");
-        char key = keypad.getKey();
+         char key = keypad.getKey();
         if (key=='1'){
                   lcd.clear();
                   lcd.setCursor(0, 0);
                   lcd.print("Wait card");
+                  buzer2();
                   tagcheck();
                      }
         //tagcheck();
@@ -91,6 +96,7 @@
                   lcd.clear();
                   lcd.setCursor(0, 0);
                   lcd.print("Cancel");
+                  buzer();
                   delay(2000);
                   break;
                  
@@ -113,12 +119,12 @@
               record.getPayload(payload);
               Serial.write(payload,payloadLength);
               //PrintHexChar(payload, payloadLength);
-              for (int c = 0; c < payloadLength; c++) {
+              for (int c = 1; c < payloadLength; c++) {//the first 0 is \n
               payloadAsString += (char)payload[c];
-              
+              //Serial.println((char)payload[c]);
              }
              
-             Serial.println(payloadAsString);
+             //Serial.println(payloadAsString);
             }
              
              
@@ -135,25 +141,45 @@
         {
           lcd.clear();
           lcd.setCursor(0,0);
-          lcd.print("successfully");
+          lcd.print("Armed");
+          buzer();
+          timer.restart();
           int x = payloadAsString.toInt();
-          timer.setCounter(0, 1, 0, timer.COUNT_UP, onComplete);
+          digitalWrite(A1,HIGH);
+          timer.setCounter(0, x, 0, timer.COUNT_UP, onComplete);
 
           // Print current time every 1s on serial port by calling method refreshClock().
           timer.setInterval(refreshClock, 1000);
           while(1)
           {
-            
+         char key = keypad.getKey();
+         if (key=='#')
+         {
+                  lcd.clear();
+                  lcd.setCursor(0, 0);
+                  lcd.print("Cancel");
+                  buzer();
+                  digitalWrite(A1,LOW);
+                  delay(2000);
+                  break;
+                 
+          }   
              // Run timer
-          timer.run();
+              timer.run();
 
          // Now timer is running and listening for actions.
          // If you want to start the timer, you have to call start() method.
-         if(!timer.isCounterCompleted()) {
+         if(!timer.isCounterCompleted()) 
+         {
                timer.start();
-                                         }
-                                         else{break;}                      
-          }
+               
+         }                                      
+         else
+         {
+                digitalWrite(A1,LOW);
+                break;
+         }                      
+         }
           
           delay(2000);
           lcd.clear();
@@ -181,7 +207,44 @@
    Serial.print("Complete!!!");
    }
 
-    
+   void buzer()
+   {
+    int i;
+        for (i = 0; i <80; i++) // When a frequency sound
+        {
+        digitalWrite (A2, HIGH) ; //send tone
+        delay (1) ;
+        digitalWrite (A2, LOW) ; //no tone
+        delay (1) ;
+        } 
+        for (i = 0; i <100; i++) 
+        {
+        digitalWrite (A2, HIGH) ;
+        delay (2) ;
+        digitalWrite (A2, LOW) ;
+        delay (2) ;
+        } 
+   }
+
+   void buzer2()
+   {
+    int i;
+        for (i = 0; i <100; i++) 
+        {
+        digitalWrite (A2, HIGH) ;
+        delay (2) ;
+        digitalWrite (A2, LOW) ;
+        delay (2) ;
+        } 
+
+        for (i = 0; i <80; i++) // When a frequency sound
+        {
+        digitalWrite (A2, HIGH) ; //send tone
+        delay (1) ;
+        digitalWrite (A2, LOW) ; //no tone
+        delay (1) ;
+        } 
+   }
 
     void breath(unsigned char color){
     for(int i=0; i<255; i++){
