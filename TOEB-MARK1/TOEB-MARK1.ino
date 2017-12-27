@@ -37,7 +37,6 @@
     void setup(void)
     {
         Serial.begin(115200); // start serial comm
-        Serial.println("NDEF Reader");
         nfc.begin(); // begin NFC comm
         // initialize
         lcd.init();
@@ -53,9 +52,7 @@
          lcd.print("Created by");
          lcd.setCursor(0, 1);
          lcd.print("S.Votsis");
-         delay(2000);
-        
-         
+         delay(2000);                 
     }
 
     void loop(void)
@@ -71,14 +68,14 @@
          lcd.setCursor(0, 0);
          lcd.print("System off");
          char key = keypad.getKey();
-        if (key=='1'){
-                  lcd.clear();
-                  lcd.setCursor(0, 0);
-                  lcd.print("Wait card");
-                  buzer2();
-                  tagcheck();
-                     }
-        //tagcheck();
+                  if (key=='1')
+                  {
+                    lcd.clear();
+                    lcd.setCursor(0, 0);
+                    lcd.print("Wait card");
+                    buzer2();
+                    tagcheck();
+                   }
       }
       //Ean eisai on
       else
@@ -104,12 +101,12 @@
        //lcd.println("Place a formatted Mifare Classic NFC tag on the reader.");
       if(nfc.tagPresent())
       {
-      String payloadAsString = "" ;
+       String payloadAsString = "" ;
        NfcTag tag = nfc.read(); // read the NFC tag
           if(tag.hasNdefMessage())
           {
             NdefMessage message = tag.getNdefMessage();
-            //String payloadAsString = "" ;
+            
            
             for(int i=0;i<message.getRecordCount();i++)
             {
@@ -196,14 +193,16 @@
     }
 
       
-    void refreshClock() {
+    void refreshClock()
+    {
    
-   Serial.println("Current time is: ");
+    Serial.println("Current time is: ");
    
     Serial.println(timer.getCurrentTime());
     }
 
-   void onComplete() {
+   void onComplete() 
+   {
    Serial.print("Complete!!!");
    }
 
